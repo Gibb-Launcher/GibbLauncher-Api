@@ -1,24 +1,21 @@
-from flask import Flask, jsonify
-app = Flask(__name__)
+from flask import Flask, jsonify, request
+import time
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol', 
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web', 
-        'done': False
-    }
-]
+app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def hello():
-    return jsonify({'tasks': tasks})
+    return jsonify({'data': "Get Confirm!"})
 
+
+@app.route('/', methods=['POST'])
+def set_players():
+    # Sleep to simulate image processing
+    time.sleep(20)
+
+    # Print request to confirm post data
+    print(request.json)
+    return jsonify({'data': "Post Confirm!"})
+    
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
