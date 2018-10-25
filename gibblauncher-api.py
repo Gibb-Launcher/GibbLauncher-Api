@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 import time
 import random
 import os
+import hawkeye
+
 
 IP_MUTEX = None
 app = Flask(__name__)
@@ -43,47 +45,50 @@ def isAvailable() :
   return response
 
 def set_players():
+
+    bounces = hawkeye.get_bounces()
+
     response_bounces = {
         'bounces': [
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[0][0],
+              'y': bounces[0][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[1][0],
+              'y': bounces[1][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[2][0],
+              'y': bounces[2][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[3][0],
+              'y': bounces[3][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[4][0],
+              'y': bounces[4][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[5][0],
+              'y': bounces[5][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[6][0],
+              'y': bounces[6][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[7][0],
+              'y': bounces[7][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[8][0],
+              'y': bounces[8][1],
             },
             {
-              'x': random.randint(-100,100),
-              'y': random.randint(-100,100),
+              'x': bounces[9][0],
+              'y': bounces[9][1],
             },
         ]
     }
@@ -118,6 +123,7 @@ def set_players():
         ]
     }
     """
+    print(response_bounces)
     return response_bounces
     
 if __name__ == "__main__":
