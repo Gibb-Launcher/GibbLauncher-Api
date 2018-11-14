@@ -7,6 +7,21 @@ import hawkeye
 
 IP_MUTEX = None
 app = Flask(__name__)
+dictionary_shots_position = {(2, 'Forehand Cruzado - Longo'): 'a', 
+                             (2, 'Backhand Cruzado - Centro'): 'b',
+                             (2, 'Backhand Paralelo - Longo'): 'c',
+                             (2, 'Forehand Cruzado - Curto'): 'd',
+                             (2, 'Backhand Paralelo - Curto'): 'e',
+                             (1, 'Forehand Cruzado - Longo'): 'f',
+                             (1, 'Backhand Paralelo - Centro'): 'g',
+                             (1, 'Backhand Cruzado - Longo'): 'h',
+                             (1, 'Forehand Cruzado - Curto'): 'i',
+                             (1, 'Backhand Cruzado - Curto'): 'j',
+                             (0, 'Forehand Paralelo - Longo'): 'k',
+                             (0, 'Backhand Cruzado - Centro'): 'l',
+                             (0, 'Backhand Cruzado - Longo'): 'm',
+                             (0, 'Forehand Paralelo - Curto'): 'n',
+                             (0, 'Backhand Cruzado - Curto'): 'o'}
 
 @app.route('/', methods=['GET'])
 def hello():
@@ -19,18 +34,35 @@ def start_request():
   requestIP = str(request.get_json()['ip'])
 
   if IP_MUTEX == None or IP_MUTEX == requestIP:
-    print("IP_MUTEX = " + str(IP_MUTEX))
+    # print("IP_MUTEX = " + str(IP_MUTEX))
     IP_MUTEX = requestIP
+    listOfPlay = getPlay(request)
+    #TODO put method call file C passing listOfPlay
     response = set_players()
   else :
     response = checkIp(requestIP)
 
   return jsonify(response)
 
+
+def getPlay(request):
+  position = request.get_json()['launcherPosition']
+  
+  listOfShots = request.get_json()['shots']
+  
+  listOfConvertShots = []
+
+  for shot in listOfShots:
+    listOfConvertShots.append(dictionary_shots_position.get((position, shot)))
+
+  print(listOfConvertShots)
+
+  return listOfConvertShots
+
 def checkIp(requestIP):
   global IP_MUTEX
   if isAvailable() != 0 :
-    print("verificou o ip")
+    # print("verificou o ip")
     responseJson = set_players()
     IP_MUTEX = requestIP 
   else :
@@ -41,7 +73,7 @@ def checkIp(requestIP):
 
 def isAvailable() :
   response = os.system("ping -c 1 " + IP_MUTEX)
-  print("Response ping: " + str(response))
+  # print("Response ping: " + str(response))
   return response
 
 def set_players():
@@ -106,8 +138,8 @@ def set_players():
     time.sleep(2)
 
     # Print request to confirm post data
-    print(request.json)
-
+    # print(request.json)
+ 
     # Save in file
     """
     {
@@ -123,7 +155,9 @@ def set_players():
         ]
     }
     """
-    print(response_bounces)
+
+    # print("\n")
+    # print(response_bounces)
     return response_bounces
     
 if __name__ == "__main__":
