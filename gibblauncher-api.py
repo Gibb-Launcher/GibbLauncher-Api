@@ -3,7 +3,7 @@ import time
 import random
 import os
 import hawkeye
-
+import socket
 
 IP_MUTEX = None
 app = Flask(__name__)
@@ -41,7 +41,9 @@ def start_request():
     response = set_players()
   else :
     response = checkIp(requestIP)
-
+  # Change local
+  create_socket()
+  
   return jsonify(response)
 
 
@@ -160,5 +162,12 @@ def set_players():
     # print(response_bounces)
     return response_bounces
     
+
+def create_socket():
+  s = socket.socket()
+  s.connect((IP_MUTEX , 4444))
+  s.send("Você é um batatão! Errou quase Tudo.".encode())
+  s.close()
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
