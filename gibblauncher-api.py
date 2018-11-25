@@ -41,8 +41,9 @@ def start_request():
     response = set_players()
   else :
     response = checkIp(requestIP)
-  # Change local
-  create_socket()
+  
+  # TODO Change local
+  create_socket_notification()
   
   return jsonify(response)
 
@@ -163,11 +164,15 @@ def set_players():
     return response_bounces
     
 
-def create_socket():
-  s = socket.socket()
-  s.connect((IP_MUTEX , 4444))
-  s.send("Você é um batatão! Errou quase Tudo.".encode())
-  s.close()
+def create_socket_notification():
+  try:
+    s = socket.socket()
+    s.connect((IP_MUTEX , 4444))
+    s.send("Você é um batatão! Errou quase Tudo.".encode())
+    s.close()  
+  except:
+    print('Erro no socket')
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
