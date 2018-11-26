@@ -52,6 +52,22 @@ def getTrainingResult():
 
   JSON_ = getJsonPositions(mac, id_trainingResult)
   
+"""
+  {
+      'id_trainingResult': 1,
+      
+      'bounces': [
+        {
+          'x': 50,
+          'y': 17,
+        },
+        {
+          'x': 25,
+          'y': 10,
+        },
+      ]
+  }
+"""
   return jsonify(JSON_)
 
 @app.route('/', methods=['POST'])
@@ -65,12 +81,9 @@ def start_request():
     
     IP_MUTEX = requestIP
     new_training = saveTraining(request)
-    savePositions(new_training.id_training)
     listOfPlay = getConvertShots(request)
-    
-      # TODO Change local
-    create_socket_notification()
 
+    # Synchronous  
     #TODO put method call file C passing listOfPlay
     # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
     # responsePosition = True
@@ -81,32 +94,25 @@ def start_request():
     #     sendPlays(listOfPlay[0])
     #     print('FOI?')
     
-    mac = request.get_json()['mac'] # use default value repalce 'None'
-    id_trainingResult = request.get_json()['id']
-  
-    response = getJsonPositions(mac, id_trainingResult)
+    #TODO recording video from shots
+
+    
+    # Assynchronous
+    #TODO add Thread to execute this block
+    #TODO add hawkeye analyses here
+    savePositions(new_training.id_training) # TODO pass bounce locations in this method
+    create_socket_notification()
+    
+    
+    response = {'trainingInfo': 'Ok'}
+
+      # TODO Change local
+    
   else :
-    response = {'data': "Ocupado!"}
+    response = {'trainingInfo': 'Fail'}
     print("Ocupado...")
 
   return jsonify(response)
-
-"""
-    {
-        'id_trainingResult': 1,
-        
-        'bounces': [
-          {
-            'x': 50,
-            'y': 17,
-          },
-          {
-            'x': 25,
-            'y': 10,
-          },
-        ]
-    }
-"""
 
 def getJsonPositions(mac, id_trainingResult):
   training_ = Training.query.filter(Training.id_trainingResult==id_trainingResult, Training.mac==str(mac)).first()
