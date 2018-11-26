@@ -52,22 +52,22 @@ def getTrainingResult():
 
   JSON_ = getJsonPositions(mac, id_trainingResult)
   
-"""
-  {
-      'id_trainingResult': 1,
-      
-      'bounces': [
-        {
-          'x': 50,
-          'y': 17,
-        },
-        {
-          'x': 25,
-          'y': 10,
-        },
-      ]
-  }
-"""
+  """
+    {
+        'id_trainingResult': 1,
+        
+        'bounces': [
+          {
+            'x': 50,
+            'y': 17,
+          },
+          {
+            'x': 25,
+            'y': 10,
+          },
+        ]
+    }
+  """
   return jsonify(JSON_)
 
 @app.route('/', methods=['POST'])
