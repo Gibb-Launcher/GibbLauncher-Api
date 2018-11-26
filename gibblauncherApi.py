@@ -67,6 +67,10 @@ def start_request():
     new_training = saveTraining(request)
     savePositions(new_training.id_training)
     listOfPlay = getConvertShots(request)
+    
+      # TODO Change local
+    create_socket_notification()
+
     #TODO put method call file C passing listOfPlay
     # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
     # responsePosition = True
@@ -217,6 +221,15 @@ def saveTraining(request):
   db.session.commit()
 
   return new_training 
+
+def create_socket_notification():
+  try:
+    s = socket.socket()
+    s.connect((IP_MUTEX , 4444))
+    s.send("Você é um batatão! Errou quase Tudo.".encode())
+    s.close()  
+  except:
+    print('Erro no socket')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
