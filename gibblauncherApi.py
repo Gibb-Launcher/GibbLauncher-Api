@@ -80,8 +80,11 @@ def start_request():
     #     print(listOfPlay[0])
     #     sendPlays(listOfPlay[0])
     #     print('FOI?')
-
-    response = set_players(request)
+    
+    mac = request.get_json()['mac'] # use default value repalce 'None'
+    id_trainingResult = request.get_json()['id']
+  
+    response = getJsonPositions(mac, id_trainingResult)
   else :
     response = {'data': "Ocupado!"}
     print("Ocupado...")
@@ -187,14 +190,6 @@ def isAvailable() :
   response = os.system("ping -c 1 " + IP_MUTEX)
   # print("Response ping: " + str(response))
   return response
-
-def set_players(request):
-  mac = request.get_json()['mac'] # use default value repalce 'None'
-  id_trainingResult = request.get_json()['id']
-  
-  JSON_ = getJsonPositions(mac, id_trainingResult)
-
-  return JSON_
 
 def savePositions(id_trainingResult):
   for i in range(10):
