@@ -16,7 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'gi
 db = SQLAlchemy(app)
 db.create_all()
 
-dictionary_shots_position = {(3, 'Forehand Cruzado - Longo'): 'a', 
+dictionary_shots_position = {(3, 'Forehand Cruzado - Longo'): 'a',
                              (3, 'Backhand Cruzado - Centro'): 'b',
                              (3, 'Backhand Paralelo - Longo'): 'c',
                              (3, 'Forehand Cruzado - Curto'): 'd',
@@ -50,14 +50,14 @@ class PositionShot(db.Model):
 @app.route('/positions', methods=['GET'])
 def getTrainingResult():
   mac = request.args.get('mac', None)
-  id_trainingResult = request.args.get('training', None)
+  id_trainingResult = request.args.get('id_trainingResult', None)
 
   JSON_ = getJsonPositions(mac, id_trainingResult)
-  
+
   """
     {
         'id_trainingResult': 1,
-        
+
         'bounces': [
           {
             'x': 50,
@@ -80,36 +80,36 @@ def start_request():
   print(request.json)
   print('\n======================================\n')
   if IP_MUTEX == None or IP_MUTEX == requestIP or isAvailable != 0:
-    
+
     IP_MUTEX = requestIP
     new_training = saveTraining(request)
     listOfPlay = getConvertShots(request)
 
-    # Synchronous  
+    # Synchronous
     # Methdo to call uart communicatio and pass position
     # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
-        
+
     # if(responsePosition == True):
     #     for play in listOfPlay:
     #         print(play)
     #         sendPlays(play)
     #         print('FOI?')
     #         time.sleep(3)
-    
+
     #TODO recording video from shots
 
-    
+
     # Assynchronous
     #TODO add Thread to execute this block
     #TODO add hawkeye analyses here
     savePositions(new_training.id_training) # TODO pass bounce locations in this method
     create_socket_notification(new_training.id_training, new_training.mac)
-    
-    
+
+
     response = 'Ok'
 
       # TODO Change local
-    
+
   else :
     response = 'Fail'
     print("Ocupado...")
@@ -183,7 +183,7 @@ def getConvertShots(request):
   listOfShots = request.get_json()['shots']
   #List shots
   #print(listOfShots)
-  
+
   listOfConvertShots = []
 
   for shot in listOfShots:
@@ -223,7 +223,7 @@ def saveTraining(request):
   db.session.add(new_training)
   db.session.commit()
 
-  return new_training 
+  return new_training
 
 def create_socket_notification(id_training, mac):
   try:
@@ -231,7 +231,7 @@ def create_socket_notification(id_training, mac):
     s.connect((IP_MUTEX , 4444))
     response = "Você é um batatão! Errou quase Tudo.;"+ mac + ";" + str(id_training)
     s.send(response.encode())
-    s.close()  
+    s.close()
   except Exception as e:
 
     print('Erro no socket' + str(e))
