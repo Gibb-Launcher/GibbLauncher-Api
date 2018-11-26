@@ -84,15 +84,15 @@ def start_request():
     listOfPlay = getConvertShots(request)
 
     # Synchronous  
-    #TODO put method call file C passing listOfPlay
+    # Methdo to call uart communicatio and pass position
     # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
-    # responsePosition = True
-
+        
     # if(responsePosition == True):
-    #     #for play in listOfPlay:
-    #     print(listOfPlay[0])
-    #     sendPlays(listOfPlay[0])
-    #     print('FOI?')
+    #     for play in listOfPlay:
+    #         print(play)
+    #         sendPlays(play)
+    #         print('FOI?')
+    #         time.sleep(3)
     
     #TODO recording video from shots
 
