@@ -5,7 +5,7 @@ import time
 import random
 import os
 import hawkeye
-import uart_communication
+#import uart_communication
 
 
 IP_MUTEX = None
@@ -33,21 +33,129 @@ dictionary_shots_position = {(3, 'Forehand Cruzado - Longo'): 'a',
 class Training(db.Model):
   __tablename__ = "training"
   id_training = db.Column(db.Integer, primary_key=True)
-  name_training = db.Column(db.String(50), nullable=False)
-  mac = db.Column(db.String(50), nullable=False)
-  date = db.Column(db.DateTime, nullable=False)
-  positionsShot = db.relationship('PositionShot', backref='training_positionShot', lazy=True)
+  id_trainingResult = db.Column(db.Integer, nullable=False)
+  mac = db.Column(db.String(20), nullable=False)
+  ip = db.Column(db.String(15), nullable=False)
+  postions = db.relationship('PositionShot', backref='training_positionShot', lazy=True)
 
 class PositionShot(db.Model):
   __tablename__ = "positionShot"
   id_positionShot = db.Column(db.Integer, primary_key=True)
   training_id = db.Column(db.Integer, db.ForeignKey('training.id_training'), nullable=False)
-  positionX = db.Column(db.Integer, nullable=False)
-  positionY = db.Column(db.Integer, nullable=False)
+  postiionX = db.Column(db.Integer, nullable=False)
+  postiionY = db.Column(db.Integer, nullable=False)
 
-@app.route('/', methods=['GET'])
-def hello():
-  return jsonify({'data': "Get Confirm!"})
+@app.route('/positions', methods=['GET'])
+def getTrainingResult():
+  mac = request.args.get('mac', None) # use default value repalce 'None'
+  id_trainingResult = request.args.get('training', None)
+  print("ENTROU")
+  traini1 = Training.query.all()
+  print(mac)
+  print(id_trainingResult)
+  str(mac)
+
+  training_ = Training.query.filter(Training.id_trainingResult==id_trainingResult, Training.mac==str(mac)).first()
+
+  positions_ = PositionShot.query.filter_by(training_id=training_.id_training).all()
+  
+  # print(training_.id_training)
+
+  for position in positions_:
+    print(position.postiionX, position.postiionY)
+
+  # list_positionsShot_ = PositionShot.query.filter_by(positions=training_.id_training).all() 
+
+
+  # response_bounces = {
+  #       'id_trainingResult': id,
+  #       'bounces': [
+  #           {
+  #             'x': list_positionsShot_[0].postiionX,
+  #             'y': list_positionsShot_[0].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[1].postiionX,
+  #             'y': list_positionsShot_[1].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[2].postiionX,
+  #             'y': list_positionsShot_[2].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[3].postiionX,
+  #             'y': list_positionsShot_[3].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[4].postiionX,
+  #             'y': list_positionsShot_[4].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[5].postiionX,
+  #             'y': list_positionsShot_[5].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[6].postiionX,
+  #             'y': list_positionsShot_[6].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[7].postiionX,
+  #             'y': list_positionsShot_[7].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[8].postiionX,
+  #             'y': list_positionsShot_[8].postiionY,
+  #           },
+  #           {
+  #             'x': list_positionsShot_[9].postiionX,
+  #             'y': list_positionsShot_[9].postiionY,
+  #           },
+  #       ]
+  #   }
+
+  #response = set_players(request)
+
+  return jsonify()
+
+
+@app.route('/', methods=['POST'])
+def start_request():
+  global IP_MUTEX
+  requestIP = str(request.get_json()['ip'])
+  print('======================================\n')
+  print(request.json)
+  print('======================================\n')
+  if IP_MUTEX == None or IP_MUTEX == requestIP or isAvailable != 0:
+    # print("IP_MUTEX = " + str(IP_MUTEX))
+    id_trainingResult_ = int(request.get_json()['id'])
+    IP_MUTEX = requestIP
+    MAC = str(request.get_json()['mac'])
+    new_training = Training()
+    new_training.id_trainingResult = id_trainingResult_
+    new_training.mac = MAC
+    new_training.ip = IP_MUTEX
+
+    #Save in Database
+    db.session.add(new_training)
+    db.session.commit()
+    savePositions(new_training.id_training)
+    listOfPlay = getPlay(request)
+    #TODO put method call file C passing listOfPlay
+    # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
+    # responsePosition = True
+
+    # if(responsePosition == True):
+    #     #for play in listOfPlay:
+    #     print(listOfPlay[0])
+    #     sendPlays(listOfPlay[0])
+    #     print('FOI?')
+
+    response = set_players(request)
+  else :
+    responseJson = {'data': "Ocupado!"}
+    print("Ocupado...")
+
+  return jsonify(response)
 
 def sendPlays(play):
     responseShot = uart_communication.uart_communication_shot(play)
@@ -55,41 +163,6 @@ def sendPlays(play):
         return True
     else:
         sendPlays(play)
-
-@app.route('/', methods=['POST'])
-def start_request():
-  global IP_MUTEX
-  requestIP = str(request.get_json()['ip'])
-
-  if IP_MUTEX == None or IP_MUTEX == requestIP:
-    # print("IP_MUTEX = " + str(IP_MUTEX))
-    title_ = str(request.get_json()['title'])
-    IP_MUTEX = requestIP
-    MAC = str(request.get_json()['mac'])
-    new_training = Training()
-    new_training.name_training = title_
-    new_training.mac = MAC
-    new_training.date = datetime.now()
-
-
-    db.session.add(new_training)
-    db.session.commit()
-    #TODO put method call file C passing listOfPlay
-    responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
-    responsePosition = True
-
-    if(responsePosition == True):
-        #for play in listOfPlay:
-        print(listOfPlay[0])
-        sendPlays(listOfPlay[0])
-        print('FOI?')
-
-    response = set_players()
-  else :
-    response = checkIp(requestIP)
-
-  return jsonify(response)
-
 
 def getPlay(request):
   position = request.get_json()['launcherPosition']
@@ -107,28 +180,17 @@ def getPlay(request):
 
   return listOfConvertShots
 
-def checkIp(requestIP):
-  global IP_MUTEX
-  if isAvailable() != 0 :
-    # print("verificou o ip")
-    responseJson = set_players()
-    IP_MUTEX = requestIP 
-  else :
-    responseJson = {'data': "Ocupado!"}
-    print("Ocupado...")
-
-  return responseJson
-
 def isAvailable() :
   response = os.system("ping -c 1 " + IP_MUTEX)
   # print("Response ping: " + str(response))
   return response
 
-def set_players():
+def set_players(request):
 
     bounces = hawkeye.get_bounces()
 
     response_bounces = {
+        'id_trainingResult': int(request.get_json()['id']),
         'bounces': [
             {
               'x': bounces[0][0],
@@ -206,9 +268,22 @@ def set_players():
     }
     """
 
-    # print("\n")
-    # print(response_bounces)
+    print("\n")
+    print("===========RESPONSE===================")
+    print(response_bounces)
     return response_bounces
-    
+
+def savePositions(id_trainingResult):
+  for i in range(10):
+    position_ = PositionShot()
+    position_.training_id = id_trainingResult
+    position_.postiionX = random.randint(-100,100)
+    position_.postiionY = random.randint(-100,100)
+
+    #Save in Database
+    db.session.add(position_)
+    db.session.commit()
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
