@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import random
 import os
+import socket
 import hawkeye
 #import uart_communication
 
@@ -13,6 +14,7 @@ app = Flask(__name__)
 basedir = basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'gibb.db')
 db = SQLAlchemy(app)
+db.create_all()
 
 dictionary_shots_position = {(3, 'Forehand Cruzado - Longo'): 'a', 
                              (3, 'Backhand Cruzado - Centro'): 'b',
