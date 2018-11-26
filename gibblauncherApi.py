@@ -47,99 +47,26 @@ class PositionShot(db.Model):
 
 @app.route('/positions', methods=['GET'])
 def getTrainingResult():
-  mac = request.args.get('mac', None) # use default value repalce 'None'
+  mac = request.args.get('mac', None)
   id_trainingResult = request.args.get('training', None)
-  print("ENTROU")
-  traini1 = Training.query.all()
-  print(mac)
-  print(id_trainingResult)
-  str(mac)
 
-  training_ = Training.query.filter(Training.id_trainingResult==id_trainingResult, Training.mac==str(mac)).first()
-
-  positions_ = PositionShot.query.filter_by(training_id=training_.id_training).all()
+  JSON_ = getJsonPositions(mac, id_trainingResult)
   
-  # print(training_.id_training)
-
-  for position in positions_:
-    print(position.postiionX, position.postiionY)
-
-  # list_positionsShot_ = PositionShot.query.filter_by(positions=training_.id_training).all() 
-
-
-  # response_bounces = {
-  #       'id_trainingResult': id,
-  #       'bounces': [
-  #           {
-  #             'x': list_positionsShot_[0].postiionX,
-  #             'y': list_positionsShot_[0].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[1].postiionX,
-  #             'y': list_positionsShot_[1].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[2].postiionX,
-  #             'y': list_positionsShot_[2].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[3].postiionX,
-  #             'y': list_positionsShot_[3].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[4].postiionX,
-  #             'y': list_positionsShot_[4].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[5].postiionX,
-  #             'y': list_positionsShot_[5].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[6].postiionX,
-  #             'y': list_positionsShot_[6].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[7].postiionX,
-  #             'y': list_positionsShot_[7].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[8].postiionX,
-  #             'y': list_positionsShot_[8].postiionY,
-  #           },
-  #           {
-  #             'x': list_positionsShot_[9].postiionX,
-  #             'y': list_positionsShot_[9].postiionY,
-  #           },
-  #       ]
-  #   }
-
-  #response = set_players(request)
-
-  return jsonify()
-
+  return jsonify(JSON_)
 
 @app.route('/', methods=['POST'])
 def start_request():
   global IP_MUTEX
   requestIP = str(request.get_json()['ip'])
-  print('======================================\n')
+  print('===============POST=====================\n')
   print(request.json)
-  print('======================================\n')
+  print('\n======================================\n')
   if IP_MUTEX == None or IP_MUTEX == requestIP or isAvailable != 0:
-    # print("IP_MUTEX = " + str(IP_MUTEX))
-    id_trainingResult_ = int(request.get_json()['id'])
+    
     IP_MUTEX = requestIP
-    MAC = str(request.get_json()['mac'])
-    new_training = Training()
-    new_training.id_trainingResult = id_trainingResult_
-    new_training.mac = MAC
-    new_training.ip = IP_MUTEX
-
-    #Save in Database
-    db.session.add(new_training)
-    db.session.commit()
+    new_training = saveTraining(request)
     savePositions(new_training.id_training)
-    listOfPlay = getPlay(request)
+    listOfPlay = getConvertShots(request)
     #TODO put method call file C passing listOfPlay
     # responsePosition = uart_communication.uart_communication_position(str(request.get_json()['launcherPosition']))
     # responsePosition = True
@@ -152,10 +79,82 @@ def start_request():
 
     response = set_players(request)
   else :
-    responseJson = {'data': "Ocupado!"}
+    response = {'data': "Ocupado!"}
     print("Ocupado...")
 
   return jsonify(response)
+
+"""
+    {
+        'id_trainingResult': 1,
+        
+        'bounces': [
+          {
+            'x': 50,
+            'y': 17,
+          },
+          {
+            'x': 25,
+            'y': 10,
+          },
+        ]
+    }
+"""
+
+def getJsonPositions(mac, id_trainingResult):
+  training_ = Training.query.filter(Training.id_trainingResult==id_trainingResult, Training.mac==str(mac)).first()
+
+  list_positionsShot_ = PositionShot.query.filter_by(training_id=training_.id_training).all()
+
+  response_bounces = {
+        'id_trainingResult': training_.id_trainingResult,
+        'bounces': [
+            {
+              'x': list_positionsShot_[0].postiionX,
+              'y': list_positionsShot_[0].postiionY,
+            },
+            {
+              'x': list_positionsShot_[1].postiionX,
+              'y': list_positionsShot_[1].postiionY,
+            },
+            {
+              'x': list_positionsShot_[2].postiionX,
+              'y': list_positionsShot_[2].postiionY,
+            },
+            {
+              'x': list_positionsShot_[3].postiionX,
+              'y': list_positionsShot_[3].postiionY,
+            },
+            {
+              'x': list_positionsShot_[4].postiionX,
+              'y': list_positionsShot_[4].postiionY,
+            },
+            {
+              'x': list_positionsShot_[5].postiionX,
+              'y': list_positionsShot_[5].postiionY,
+            },
+            {
+              'x': list_positionsShot_[6].postiionX,
+              'y': list_positionsShot_[6].postiionY,
+            },
+            {
+              'x': list_positionsShot_[7].postiionX,
+              'y': list_positionsShot_[7].postiionY,
+            },
+            {
+              'x': list_positionsShot_[8].postiionX,
+              'y': list_positionsShot_[8].postiionY,
+            },
+            {
+              'x': list_positionsShot_[9].postiionX,
+              'y': list_positionsShot_[9].postiionY,
+            },
+        ]
+    }
+  print("===============BOUNCE LOCATION======================\n")
+  print(response_bounces)
+  print("\n====================================================\n")
+  return response_bounces
 
 def sendPlays(play):
     responseShot = uart_communication.uart_communication_shot(play)
@@ -164,19 +163,19 @@ def sendPlays(play):
     else:
         sendPlays(play)
 
-def getPlay(request):
+def getConvertShots(request):
   position = request.get_json()['launcherPosition']
-  
   listOfShots = request.get_json()['shots']
-  
-  print(listOfShots)
+  #List shots
+  #print(listOfShots)
   
   listOfConvertShots = []
 
   for shot in listOfShots:
     listOfConvertShots.append(dictionary_shots_position.get((position, shot)))
 
-  print(listOfConvertShots)
+  # List convert shots
+  # print(listOfConvertShots)
 
   return listOfConvertShots
 
@@ -186,92 +185,12 @@ def isAvailable() :
   return response
 
 def set_players(request):
+  mac = request.get_json()['mac'] # use default value repalce 'None'
+  id_trainingResult = request.get_json()['id']
+  
+  JSON_ = getJsonPositions(mac, id_trainingResult)
 
-    bounces = hawkeye.get_bounces()
-
-    response_bounces = {
-        'id_trainingResult': int(request.get_json()['id']),
-        'bounces': [
-            {
-              'x': bounces[0][0],
-              'y': bounces[0][1],
-            },
-            {
-              'x': bounces[1][0],
-              'y': bounces[1][1],
-            },
-            {
-              'x': bounces[2][0],
-              'y': bounces[2][1],
-            },
-            {
-              'x': bounces[3][0],
-              'y': bounces[3][1],
-            },
-            {
-              'x': bounces[4][0],
-              'y': bounces[4][1],
-            },
-            {
-              'x': bounces[5][0],
-              'y': bounces[5][1],
-            },
-            {
-              'x': bounces[6][0],
-              'y': bounces[6][1],
-            },
-            {
-              'x': bounces[7][0],
-              'y': bounces[7][1],
-            },
-            {
-              'x': bounces[8][0],
-              'y': bounces[8][1],
-            },
-            {
-              'x': bounces[9][0],
-              'y': bounces[9][1],
-            },
-        ]
-    }
-
-    """
-    {
-        'title': 'Treino ABC',
-        'position': -1,
-        'shots': [
-            50, 12, 33, 77
-        ],
-        'ip': '192.168.0.1',
-        'mac': 'A9:85:D2:C1:85'
-    }
-    """
-    # Sleep to simulate image processing
-    time.sleep(2)
-
-    # Print request to confirm post data
-    # print(request.json)
- 
-    # Save in file
-    """
-    {
-        'bounces': [
-            {
-              'x': 50,
-              'y': 30,
-            },
-            {
-              'x': -1,
-              'y': -1,
-            },...
-        ]
-    }
-    """
-
-    print("\n")
-    print("===========RESPONSE===================")
-    print(response_bounces)
-    return response_bounces
+  return JSON_
 
 def savePositions(id_trainingResult):
   for i in range(10):
@@ -284,6 +203,20 @@ def savePositions(id_trainingResult):
     db.session.add(position_)
     db.session.commit()
 
+def saveTraining(request):
+  id_trainingResult_ = int(request.get_json()['id'])
+  ip_ = str(request.get_json()['ip'])
+  MAC = str(request.get_json()['mac'])
+  new_training = Training()
+  new_training.id_trainingResult = id_trainingResult_
+  new_training.mac = MAC
+  new_training.ip = ip_
+
+  #Save in Database
+  db.session.add(new_training)
+  db.session.commit()
+
+  return new_training 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
