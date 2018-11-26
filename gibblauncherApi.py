@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import random
 import os
+import socket
 import hawkeye
 #import uart_communication
 
@@ -105,12 +106,12 @@ def start_request():
     create_socket_notification()
     
     
-    response = {'trainingInfo': 'Ok'}
+    response = 'Ok'
 
       # TODO Change local
     
   else :
-    response = {'trainingInfo': 'Fail'}
+    response = 'Fail'
     print("Ocupado...")
 
   return jsonify(response)
