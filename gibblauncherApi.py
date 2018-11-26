@@ -103,7 +103,7 @@ def start_request():
     #TODO add Thread to execute this block
     #TODO add hawkeye analyses here
     savePositions(new_training.id_training) # TODO pass bounce locations in this method
-    create_socket_notification()
+    create_socket_notification(new_training.id_training, new_training.mac)
     
     
     response = 'Ok'
@@ -225,14 +225,16 @@ def saveTraining(request):
 
   return new_training 
 
-def create_socket_notification():
+def create_socket_notification(id_training, mac):
   try:
     s = socket.socket()
     s.connect((IP_MUTEX , 4444))
-    s.send("Você é um batatão! Errou quase Tudo.".encode())
+    response = "Você é um batatão! Errou quase Tudo.;"+ mac + ";" + str(id_training)
+    s.send(response.encode())
     s.close()  
-  except:
-    print('Erro no socket')
+  except Exception as e:
+
+    print('Erro no socket' + str(e))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
