@@ -106,12 +106,12 @@ def start_request():
     create_socket_notification()
     
     
-    response = {'trainingInfo': 'Ok'}
+    response = 'Ok'
 
       # TODO Change local
     
   else :
-    response = {'trainingInfo': 'Fail'}
+    response = 'Fail'
     print("Ocupado...")
 
   return jsonify(response)
